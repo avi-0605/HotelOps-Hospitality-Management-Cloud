@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HotelOps — Hospitality Management Cloud</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#f8fafc;--surface:#ffffff;--border:#e2e8f0;
+--text:#0f172a;--muted:#475569;--dim:#64748b;
+--primary:#2563eb;--primary-dark:#1d4ed8;--primary-light:#eff6ff;
+--success:#059669;--success-light:#ecfdf5;--success-border:rgba(5,150,105,.12);
+--warning:#d97706;--warning-light:#fffbeb;
+--danger:#dc2626;--danger-light:#fef2f2;
+--info:#2563eb;--info-light:#eff6ff;
+--navy:#1e3a8a;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:210px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-logo{padding:18px 16px;border-bottom:1px solid var(--border)}
+.logo-text{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.logo-sub{font-size:11px;color:var(--dim);margin-top:3px}
+.sidebar-nav{flex:1;overflow-y:auto;padding:10px 0}
+.nav-section{padding:12px 16px 4px;font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 12px;margin:1px 6px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--muted);transition:all .15s;user-select:none}
+.nav-item:hover{background:#f1f5f9;color:var(--text)}
+.nav-item.active{background:#f1f5f9;color:var(--text);font-weight:500}
+.nav-item i{font-size:16px;flex-shrink:0}
+.nav-badge{margin-left:auto;background:#fee2e2;color:#dc2626;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px}
+.sidebar-footer{padding:14px;border-top:1px solid var(--border)}
+.user-row{display:flex;align-items:center;gap:10px}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--primary);flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:var(--text)}
+.user-role{font-size:11px;color:var(--dim)}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;min-width:0}
+.topbar{padding:13px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);flex-shrink:0;position:sticky;top:0;z-index:50}
+.topbar-left{}
+.topbar-title{font-size:15px;font-weight:600;color:var(--text)}
+.topbar-meta{font-size:12px;color:var(--dim);margin-top:2px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.status-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:var(--success-light);border:1px solid var(--success-border);font-size:12px;color:var(--success);font-weight:500}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--success)}
+.icon-btn{width:32px;height:32px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;position:relative}
+.icon-btn:hover{background:#f1f5f9}
+.notif-dot{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:#dc2626}
+
+/* CONTENT */
+.content{padding:20px;flex:1}
+.page{display:none}
+.page.active{display:block}
+
+/* METRICS GRID */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
+.metric-label{font-size:12px;color:var(--muted);font-weight:500;margin-bottom:8px}
+.metric-value{font-size:26px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-.5px}
+.metric-sub{font-size:11px;color:var(--dim);margin-top:5px;display:flex;align-items:center;gap:3px}
+.metric-up{color:var(--success)}
+.metric-down{color:var(--danger)}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:16px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:13px;font-weight:600;color:var(--text)}
+.card-subtitle{font-size:12px;color:var(--dim);margin-top:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:all .15s;text-decoration:none}
+.btn:hover{background:#f1f5f9}
+.btn-primary{background:var(--text);color:var(--surface);border-color:var(--text)}
+.btn-primary:hover{opacity:.85}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-icon{width:28px;height:28px;padding:0;justify-content:center;border-radius:6px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:500;white-space:nowrap}
+.badge-green{background:var(--success-light);color:#065f46}
+.badge-amber{background:var(--warning-light);color:#92400e}
+.badge-red{background:var(--danger-light);color:#991b1b}
+.badge-blue{background:var(--primary-light);color:#1e40af}
+.badge-gray{background:#f1f5f9;color:#475569}
+.badge-navy{background:#eff6ff;color:var(--navy)}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:600;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);background:#fafafa}
+td{font-size:12px;color:var(--text);padding:10px 10px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#f8fafc}
+
+/* FORM ELEMENTS */
+.filter-row{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+select,input[type=text],input[type=search]{font-size:12px;padding:6px 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);outline:none}
+select:focus,input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(37,99,235,.1)}
+
+/* PROGRESS BARS */
+.bar-wrap{background:#f1f5f9;border-radius:4px;overflow:hidden}
+.bar-fill{border-radius:4px;transition:width .4s ease}
+.bar-green{background:var(--success)}
+.bar-blue{background:var(--primary)}
+.bar-amber{background:var(--warning)}
+.bar-navy{background:var(--navy)}
+.bar-red{background:var(--danger)}
+
+/* ACTIVITY FEED */
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.act-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.act-green{background:var(--success-light);color:var(--success)}
+.act-red{background:var(--danger-light);color:var(--danger)}
+.act-amber{background:var(--warning-light);color:var(--warning)}
+.act-blue{background:var(--primary-light);color:var(--primary)}
+.act-gray{background:#f1f5f9;color:var(--muted)}
+.act-body{flex:1;min-width:0}
+.act-text{font-size:12px;color:var(--text);line-height:1.5}
+.act-time{font-size:11px;color:var(--dim);margin-top:2px}
+
+/* ROOM CARDS */
+.room-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.room-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;transition:all .15s}
+.room-card:hover{border-color:#cbd5e1;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.room-card.occupied{border-left:3px solid var(--success)}
+.room-card.available{border-left:3px solid var(--primary)}
+.room-card.maintenance{border-left:3px solid var(--warning)}
+.room-num{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.5px}
+.room-type{font-size:11px;color:var(--dim);margin-top:2px}
+.room-floor{font-size:11px;color:var(--dim)}
+.room-price{font-size:12px;font-weight:500;color:var(--text);margin-top:8px}
+.room-badge{margin-top:6px}
+
+/* STAT BOXES */
+.stat-box{background:#f8fafc;border-radius:8px;padding:14px;text-align:center}
+.stat-box-num{font-size:22px;font-weight:700;color:var(--text);line-height:1}
+.stat-box-label{font-size:11px;color:var(--dim);margin-top:4px}
+
+/* AWS STATUS */
+.service-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.service-row:last-child{border-bottom:none}
+.service-name{font-size:13px;font-weight:500;color:var(--text)}
+.service-detail{font-size:11px;color:var(--dim);margin-top:2px}
+.infra-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.infra-row:last-child{border-bottom:none}
+.infra-key{color:var(--muted);font-weight:500}
+.infra-val{color:var(--text);font-family:monospace;font-size:11px}
+
+/* CHART BAR */
+.chart-bars{display:flex;align-items:flex-end;gap:6px;height:60px}
+.chart-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.chart-bar{width:100%;border-radius:3px 3px 0 0;transition:height .4s ease}
+.chart-label{font-size:9px;color:var(--dim)}
+
+/* SECTION LABEL */
+.section-label{font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin:16px 0 10px}
+
+/* DIVIDER */
+.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
+
+/* TAGS */
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag{padding:3px 9px;border-radius:20px;font-size:11px;background:#f1f5f9;color:var(--muted);border:1px solid var(--border)}
+
+/* TIMELINE */
+.timeline-item{display:flex;gap:12px;padding-bottom:14px;position:relative}
+.timeline-item::before{content:'';position:absolute;left:10px;top:22px;bottom:0;width:1px;background:var(--border)}
+.timeline-item:last-child::before{display:none}
+.timeline-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:var(--surface);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:9px;z-index:1}
+.timeline-content{flex:1;min-width:0}
+.timeline-title{font-size:12px;font-weight:500;color:var(--text)}
+.timeline-time{font-size:11px;color:var(--dim);margin-top:2px}
+
+/* MODAL OVERLAY (static, for demo) */
+.empty-state{text-align:center;padding:40px 20px;color:var(--dim)}
+.empty-state i{font-size:36px;display:block;margin-bottom:10px;opacity:.4}
+.empty-state p{font-size:13px}
+
+@media(max-width:900px){
+  .sidebar{width:56px}
+  .sidebar-logo,.nav-section,.user-name,.user-role,.nav-item span{display:none}
+  .nav-item{justify-content:center;padding:10px}
+  .metrics{grid-template-columns:1fr 1fr}
+  .grid2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">HotelOps</div>
+    <div class="logo-sub">ap-southeast-2 · Sydney</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)">
+      <i class="ti ti-layout-dashboard"></i><span>Dashboard</span>
+    </div>
+    <div class="nav-item" onclick="showPage('bookings',this)">
+      <i class="ti ti-calendar"></i><span>Bookings</span>
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" onclick="showPage('rooms',this)">
+      <i class="ti ti-building"></i><span>Rooms</span>
+    </div>
+    <div class="nav-item" onclick="showPage('guests',this)">
+      <i class="ti ti-users"></i><span>Guests</span>
+    </div>
+    <div class="nav-section">Analytics</div>
+    <div class="nav-item" onclick="showPage('reports',this)">
+      <i class="ti ti-chart-bar"></i><span>Reports</span>
+    </div>
+    <div class="nav-item" onclick="showPage('aws',this)">
+      <i class="ti ti-server"></i><span>AWS Status</span>
+    </div>
+    <div class="nav-section">Admin</div>
+    <div class="nav-item" onclick="showPage('iam',this)">
+      <i class="ti ti-shield-lock"></i><span>IAM & Access</span>
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar">HA</div>
+      <div>
+        <div class="user-name">HotelOps Admin</div>
+        <div class="user-role">Administrator</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-meta">Sunday, 14 June 2026 &nbsp;·&nbsp; HotelOps Hospitality Management Cloud &nbsp;·&nbsp; B.Tech Semester IV AWS Project</div>
+    </div>
+    <div class="topbar-right">
+      <div class="status-pill"><div class="status-dot"></div>All systems operational</div>
+      <button class="icon-btn"><i class="ti ti-search"></i></button>
+      <button class="icon-btn"><i class="ti ti-bell"></i><div class="notif-dot"></div></button>
+      <button class="icon-btn"><i class="ti ti-settings"></i></button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- PAGE: DASHBOARD -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="page active" id="page-dashboard">
+      <div class="metrics">
+        <div class="metric-card">
+          <div class="metric-label">Total rooms</div>
+          <div class="metric-value">247</div>
+          <div class="metric-sub metric-up"><i class="ti ti-trending-up" style="font-size:11px"></i> 4 added this month</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Occupancy rate</div>
+          <div class="metric-value">89%</div>
+          <div class="metric-sub metric-up"><i class="ti ti-trending-up" style="font-size:11px"></i> +3% vs last week</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Active guests</div>
+          <div class="metric-value">1,842</div>
+          <div class="metric-sub metric-up"><i class="ti ti-trending-up" style="font-size:11px"></i> +12 today</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Revenue today</div>
+          <div class="metric-value">₹4.2L</div>
+          <div class="metric-sub metric-down"><i class="ti ti-trending-down" style="font-size:11px"></i> -2% vs yesterday</div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Recent bookings</div>
+              <div class="card-subtitle">Last 5 reservations</div>
+            </div>
+            <button class="btn btn-sm" onclick="showPage('bookings',document.querySelectorAll('.nav-item')[1])">View all</button>
+          </div>
+          <table>
+            <thead><tr><th>Guest</th><th>Room</th><th>Check-in</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Rahul Sharma</td><td>101 · Standard</td><td>10 Jun</td><td><span class="badge badge-green">Confirmed</span></td></tr>
+              <tr><td>Priya Patel</td><td>201 · Suite</td><td>12 Jun</td><td><span class="badge badge-blue">Checked in</span></td></tr>
+              <tr><td>Amit Singh</td><td>102 · Deluxe</td><td>16 Jun</td><td><span class="badge badge-amber">Pending</span></td></tr>
+              <tr><td>Sneha Iyer</td><td>202 · Standard</td><td>17 Jun</td><td><span class="badge badge-blue">Checked in</span></td></tr>
+              <tr><td>Rohan Mehta</td><td>301 · Suite</td><td>18 Jun</td><td><span class="badge badge-gray">Upcoming</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Live activity</div><span class="badge badge-green">Live</span></div>
+          <div class="activity-item">
+            <div class="act-icon act-green"><i class="ti ti-check"></i></div>
+            <div class="act-body"><div class="act-text">Room 201 checked in — Priya Patel</div><div class="act-time">2 min ago</div></div>
+          </div>
+          <div class="activity-item">
+            <div class="act-icon act-red"><i class="ti ti-logout"></i></div>
+            <div class="act-body"><div class="act-text">Room 105 checked out — Kumar Das</div><div class="act-time">18 min ago</div></div>
+          </div>
+          <div class="activity-item">
+            <div class="act-icon act-amber"><i class="ti ti-bell"></i></div>
+            <div class="act-body"><div class="act-text">Housekeeping requested — Room 310</div><div class="act-time">34 min ago</div></div>
+          </div>
+          <div class="activity-item">
+            <div class="act-icon act-blue"><i class="ti ti-user-plus"></i></div>
+            <div class="act-body"><div class="act-text">New guest registered — Rohan Mehta</div><div class="act-time">1 hr ago</div></div>
+          </div>
+          <div class="activity-item">
+            <div class="act-icon act-green"><i class="ti ti-check"></i></div>
+            <div class="act-body"><div class="act-text">Booking #B-1082 confirmed</div><div class="act-time">2 hr ago</div></div>
+          </div>
+          <div class="activity-item">
+            <div class="act-icon act-gray"><i class="ti ti-database"></i></div>
+            <div class="act-body"><div class="act-text">Daily backup completed — hotelops_db</div><div class="act-time">6 hr ago</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Occupancy by room type</div></div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
+                <span>Suite (40 rooms)</span><span style="font-weight:600;color:var(--success)">95%</span>
+              </div>
+              <div class="bar-wrap" style="height:7px"><div class="bar-fill bar-green" style="width:95%"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
+                <span>Deluxe (80 rooms)</span><span style="font-weight:600;color:var(--success)">88%</span>
+              </div>
+              <div class="bar-wrap" style="height:7px"><div class="bar-fill bar-green" style="width:88%"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
+                <span>Standard (127 rooms)</span><span style="font-weight:600;color:var(--warning)">82%</span>
+              </div>
+              <div class="bar-wrap" style="height:7px"><div class="bar-fill bar-amber" style="width:82%"></div></div>
+            </div>
+          </div>
+          <hr class="divider">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:500">Monthly occupancy trend</div>
+          <div class="chart-bars" id="occ-chart"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Today at a glance</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="stat-box"><div class="stat-box-num">24</div><div class="stat-box-label">Check-ins today</div></div>
+            <div class="stat-box"><div class="stat-box-num">18</div><div class="stat-box-label">Check-outs today</div></div>
+            <div class="stat-box"><div class="stat-box-num" style="color:var(--success)">27</div><div class="stat-box-label">Available rooms</div></div>
+            <div class="stat-box"><div class="stat-box-num" style="color:var(--warning)">3</div><div class="stat-box-label">Under maintenance</div></div>
+            <div class="stat-box"><div class="stat-box-num">142</div><div class="stat-box-label">Pending bookings</div></div>
+            <div class="stat-box"><div class="stat-box-num" style="color:var(--primary)">₹4.2L</div><div class="stat-box-label">Revenue today</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- PAGE: BOOKINGS -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="page" id="page-bookings">
+      <div class="metrics">
+        <div class="metric-card">
+          <div class="metric-label">Total bookings</div>
+          <div class="metric-value">1,284</div>
+          <div class="metric-sub">This month</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Confirmed</div>
+          <div class="metric-value">1,102</div>
+          <div class="metric-sub metric-up">85.8% of total</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Pending approval</div>
+          <div class="metric-value" style="color:var(--warning)">142</div>
+          <div class="metric-sub">Needs action</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Avg stay duration</div>
+          <div class="metric-value">3.2</div>
+          <div class="metric-sub">nights per booking</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">All bookings</div>
+            <div class="card-subtitle">Showing all reservations for June 2026</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-sm"><i class="ti ti-download"></i> Export</button>
+            <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> New booking</button>
+          </div>
+        </div>
+        <div class="filter-row">
+          <select><option>All status</option><option>Confirmed</option><option>Pending</option><option>Checked in</option><option>Checked out</option><option>Upcoming</option></select>
+          <select><option>All room types</option><option>Standard</option><option>Deluxe</option><option>Suite</option></select>
+          <select><option>All dates</option><option>Check-in today</option><option>Check-out today</option><option>This week</option></select>
+          <input type="search" placeholder="Search guest name or booking ID…" style="flex:1;min-width:200px">
+        </div>
+        <table>
+          <thead>
+            <tr><th>Booking ID</th><th>Guest</th><th>Room</th><th>Type</th><th>Check-in</th><th>Check-out</th><th>Nights</th><th>Amount</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>B-1089</td><td>Rahul Sharma</td><td>101</td><td>Standard</td><td>10 Jun 2026</td><td>15 Jun 2026</td><td>5</td><td>₹24,995</td><td><span class="badge badge-green">Confirmed</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-eye"></i></button></td></tr>
+            <tr><td>B-1088</td><td>Priya Patel</td><td>201</td><td>Suite</td><td>12 Jun 2026</td><td>14 Jun 2026</td><td>2</td><td>₹25,998</td><td><span class="badge badge-blue">Checked in</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-eye"></i></button></td></tr>
+            <tr><td>B-1087</td><td>Amit Singh</td><td>102</td><td>Deluxe</td><td>16 Jun 2026</td><td>18 Jun 2026</td><td>2</td><td>₹15,998</td><td><span class="badge badge-amber">Pending</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-eye"></i></button></td></tr>
+            <tr><td>B-1086</td><td>Sneha Iyer</td><td>202</td><td>Standard</td><td>17 Jun 2026</td><td>20 Jun 2026</td><td>3</td><td>₹14,997</td><td><span class="badge badge-blue">Checked in</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-eye"></i></button></td></tr>
+            <tr><td>B-1085</td><td>Rohan Mehta</td><td>301</td><td>Suite</td><td>18 Jun 2026</td><td>22 Jun 2026</td><td>4</td><td>₹51,996</td><td><span class="badge badge-gray">Upcoming</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-eye"></i></button></td></tr>
+            <tr><td>B-1084</td><td>Anjali Desai</td><td>104</td><td>Standard</td><td>09 Jun 2026</td><td>12 Jun 2026</td><td>3</td><td>₹14,997</td><td><span class="badge badge-gray">Checked out</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-eye"></i></button></td></tr>
+            <tr><td>B-1083</td><td>Vikram Nair</td><td>205</td><td>Deluxe</td><td>08 Jun 2026</td><td>11 Jun 2026</td><td>3</td><td>₹23,997</td><td><span class="badge badge-gray">Checked out</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-eye"></i></button></td></tr>
+            <tr><td>B-1082</td><td>Meera Krishnan</td><td>302</td><td>Suite</td><td>20 Jun 2026</td><td>25 Jun 2026</td><td>5</td><td>₹64,995</td><td><span class="badge badge-green">Confirmed</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-eye"></i></button></td></tr>
+            <tr><td>B-1081</td><td>Arjun Reddy</td><td>103</td><td>Standard</td><td>22 Jun 2026</td><td>24 Jun 2026</td><td>2</td><td>₹9,998</td><td><span class="badge badge-amber">Pending</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-eye"></i></button></td></tr>
+            <tr><td>B-1080</td><td>Kavya Menon</td><td>204</td><td>Deluxe</td><td>25 Jun 2026</td><td>28 Jun 2026</td><td>3</td><td>₹23,997</td><td><span class="badge badge-green">Confirmed</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-eye"></i></button></td></tr>
+          </tbody>
+        </table>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+          <span style="font-size:12px;color:var(--dim)">Showing 10 of 1,284 bookings</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm">← Previous</button>
+            <button class="btn btn-sm btn-primary">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- PAGE: ROOMS -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="page" id="page-rooms">
+      <div class="metrics">
+        <div class="metric-card"><div class="metric-label">Total rooms</div><div class="metric-value">247</div></div>
+        <div class="metric-card"><div class="metric-label">Occupied</div><div class="metric-value" style="color:var(--success)">220</div><div class="metric-sub">89% occupancy</div></div>
+        <div class="metric-card"><div class="metric-label">Available</div><div class="metric-value" style="color:var(--primary)">27</div><div class="metric-sub">Ready for check-in</div></div>
+        <div class="metric-card"><div class="metric-label">Maintenance</div><div class="metric-value" style="color:var(--warning)">3</div><div class="metric-sub">Est. ready in 2 days</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Room inventory</div><div class="card-subtitle">All 247 rooms across 6 floors</div></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="badge badge-green">● Occupied</span>
+            <span class="badge badge-blue">● Available</span>
+            <span class="badge badge-amber">● Maintenance</span>
+            <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> Add room</button>
+          </div>
+        </div>
+        <div class="filter-row">
+          <select><option>All floors</option><option>Floor 1</option><option>Floor 2</option><option>Floor 3</option></select>
+          <select><option>All types</option><option>Standard</option><option>Deluxe</option><option>Suite</option></select>
+          <select><option>All status</option><option>Occupied</option><option>Available</option><option>Maintenance</option></select>
+        </div>
+        <div class="room-grid">
+          <div class="room-card occupied"><div class="room-num">101</div><div class="room-type">Standard</div><div class="room-floor">Floor 1</div><div class="room-price">₹4,999/night</div><div class="room-badge"><span class="badge badge-green">Occupied</span></div></div>
+          <div class="room-card available"><div class="room-num">102</div><div class="room-type">Deluxe</div><div class="room-floor">Floor 1</div><div class="room-price">₹7,999/night</div><div class="room-badge"><span class="badge badge-blue">Available</span></div></div>
+          <div class="room-card occupied"><div class="room-num">103</div><div class="room-type">Standard</div><div class="room-floor">Floor 1</div><div class="room-price">₹4,999/night</div><div class="room-badge"><span class="badge badge-green">Occupied</span></div></div>
+          <div class="room-card available"><div class="room-num">104</div><div class="room-type">Standard</div><div class="room-floor">Floor 1</div><div class="room-price">₹4,999/night</div><div class="room-badge"><span class="badge badge-blue">Available</span></div></div>
+          <div class="room-card maintenance"><div class="room-num">105</div><div class="room-type">Deluxe</div><div class="room-floor">Floor 1</div><div class="room-price">₹7,999/night</div><div class="room-badge"><span class="badge badge-amber">Maintenance</span></div></div>
+          <div class="room-card occupied"><div class="room-num">106</div><div class="room-type">Standard</div><div class="room-floor">Floor 1</div><div class="room-price">₹4,999/night</div><div class="room-badge"><span class="badge badge-green">Occupied</span></div></div>
+          <div class="room-card occupied"><div class="room-num">201</div><div class="room-type">Suite</div><div class="room-floor">Floor 2</div><div class="room-price">₹12,999/night</div><div class="room-badge"><span class="badge badge-green">Occupied</span></div></div>
+          <div class="room-card occupied"><div class="room-num">202</div><div class="room-type">Standard</div><div class="room-floor">Floor 2</div><div class="room-price">₹4,999/night</div><div class="room-badge"><span class="badge badge-green">Occupied</span></div></div>
+          <div class="room-card available"><div class="room-num">203</div><div class="room-type">Deluxe</div><div class="room-floor">Floor 2</div><div class="room-price">₹7,999/night</div><div class="room-badge"><span class="badge badge-blue">Available</span></div></div>
+          <div class="room-card occupied"><div class="room-num">204</div><div class="room-type">Deluxe</div><div class="room-floor">Floor 2</div><div class="room-price">₹7,999/night</div><div class="room-badge"><span class="badge badge-green">Occupied</span></div></div>
+          <div class="room-card occupied"><div class="room-num">205</div><div class="room-type">Deluxe</div><div class="room-floor">Floor 2</div><div class="room-price">₹7,999/night</div><div class="room-badge"><span class="badge badge-green">Occupied</span></div></div>
+          <div class="room-card maintenance"><div class="room-num">206</div><div class="room-type">Standard</div><div class="room-floor">Floor 2</div><div class="room-price">₹4,999/night</div><div class="room-badge"><span class="badge badge-amber">Maintenance</span></div></div>
+          <div class="room-card occupied"><div class="room-num">301</div><div class="room-type">Suite</div><div class="room-floor">Floor 3</div><div class="room-price">₹12,999/night</div><div class="room-badge"><span class="badge badge-green">Occupied</span></div></div>
+          <div class="room-card available"><div class="room-num">302</div><div class="room-type">Suite</div><div class="room-floor">Floor 3</div><div class="room-price">₹12,999/night</div><div class="room-badge"><span class="badge badge-blue">Available</span></div></div>
+          <div class="room-card occupied"><div class="room-num">303</div><div class="room-type">Deluxe</div><div class="room-floor">Floor 3</div><div class="room-price">₹7,999/night</div><div class="room-badge"><span class="badge badge-green">Occupied</span></div></div>
+          <div class="room-card maintenance"><div class="room-num">304</div><div class="room-type">Standard</div><div class="room-floor">Floor 3</div><div class="room-price">₹4,999/night</div><div class="room-badge"><span class="badge badge-amber">Maintenance</span></div></div>
+        </div>
+        <p style="font-size:11px;color:var(--dim);text-align:center;margin-top:12px">Showing 16 of 247 rooms</p>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- PAGE: GUESTS -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="page" id="page-guests">
+      <div class="metrics">
+        <div class="metric-card"><div class="metric-label">Total guests</div><div class="metric-value">1,842</div></div>
+        <div class="metric-card"><div class="metric-label">New this month</div><div class="metric-value">214</div><div class="metric-sub metric-up">+18% vs May</div></div>
+        <div class="metric-card"><div class="metric-label">Returning guests</div><div class="metric-value">68%</div><div class="metric-sub metric-up">Loyalty rate</div></div>
+        <div class="metric-card"><div class="metric-label">Avg spend/booking</div><div class="metric-value">₹28K</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Guest directory</div><div class="card-subtitle">All registered guests — hotelops_db · guests table</div></div>
+          <button class="btn btn-primary btn-sm"><i class="ti ti-user-plus"></i> Add guest</button>
+        </div>
+        <div class="filter-row">
+          <input type="search" placeholder="Search by name, email or phone…" style="flex:1;min-width:200px">
+          <select><option>All guests</option><option>Currently staying</option><option>Upcoming</option><option>Checked out</option></select>
+        </div>
+        <table>
+          <thead><tr><th>Guest ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Total bookings</th><th>Total spend</th><th>Last stay</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>G-001</td><td><strong>Rahul Sharma</strong></td><td>rahul@email.com</td><td>9876543210</td><td>3</td><td>₹65,990</td><td>10 Jun 2026</td><td><span class="badge badge-green">Staying</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-edit"></i></button></td></tr>
+            <tr><td>G-002</td><td><strong>Priya Patel</strong></td><td>priya@email.com</td><td>9876543211</td><td>5</td><td>₹1,12,000</td><td>12 Jun 2026</td><td><span class="badge badge-green">Staying</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-edit"></i></button></td></tr>
+            <tr><td>G-003</td><td><strong>Amit Singh</strong></td><td>amit@email.com</td><td>9876543212</td><td>1</td><td>₹15,998</td><td>16 Jun 2026</td><td><span class="badge badge-amber">Upcoming</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-edit"></i></button></td></tr>
+            <tr><td>G-004</td><td><strong>Sneha Iyer</strong></td><td>sneha@email.com</td><td>9876543213</td><td>2</td><td>₹29,994</td><td>17 Jun 2026</td><td><span class="badge badge-green">Staying</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-edit"></i></button></td></tr>
+            <tr><td>G-005</td><td><strong>Rohan Mehta</strong></td><td>rohan@email.com</td><td>9876543214</td><td>4</td><td>₹1,03,988</td><td>18 Jun 2026</td><td><span class="badge badge-amber">Upcoming</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-edit"></i></button></td></tr>
+            <tr><td>G-006</td><td><strong>Anjali Desai</strong></td><td>anjali@email.com</td><td>9876543215</td><td>7</td><td>₹1,89,979</td><td>09 Jun 2026</td><td><span class="badge badge-gray">Checked out</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-edit"></i></button></td></tr>
+            <tr><td>G-007</td><td><strong>Vikram Nair</strong></td><td>vikram@email.com</td><td>9876543216</td><td>2</td><td>₹47,994</td><td>08 Jun 2026</td><td><span class="badge badge-gray">Checked out</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-edit"></i></button></td></tr>
+            <tr><td>G-008</td><td><strong>Meera Krishnan</strong></td><td>meera@email.com</td><td>9876543217</td><td>6</td><td>₹1,54,985</td><td>20 Jun 2026</td><td><span class="badge badge-blue">Registered</span></td><td><button class="btn btn-icon btn-sm"><i class="ti ti-edit"></i></button></td></tr>
+          </tbody>
+        </table>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+          <span style="font-size:12px;color:var(--dim)">Showing 8 of 1,842 guests</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm">← Previous</button>
+            <button class="btn btn-sm btn-primary">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- PAGE: REPORTS -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="page" id="page-reports">
+      <div class="metrics">
+        <div class="metric-card"><div class="metric-label">Monthly revenue</div><div class="metric-value">₹84.2L</div><div class="metric-sub metric-up">+11% vs May 2026</div></div>
+        <div class="metric-card"><div class="metric-label">RevPAR</div><div class="metric-value">₹9,340</div><div class="metric-sub">Revenue per available room</div></div>
+        <div class="metric-card"><div class="metric-label">ADR</div><div class="metric-value">₹10,495</div><div class="metric-sub">Average daily rate</div></div>
+        <div class="metric-card"><div class="metric-label">Total nights sold</div><div class="metric-value">4,102</div><div class="metric-sub">June 2026</div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Revenue by room type</div><div class="card-subtitle">June 2026 — ₹84.2L total</div></div>
+            <button class="btn btn-sm"><i class="ti ti-download"></i> Export</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span>Suite (40 rooms)</span><span style="font-weight:600">₹31.2L · 37%</span></div>
+              <div class="bar-wrap" style="height:8px"><div class="bar-fill bar-navy" style="width:37%"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span>Deluxe (80 rooms)</span><span style="font-weight:600">₹28.4L · 34%</span></div>
+              <div class="bar-wrap" style="height:8px"><div class="bar-fill bar-blue" style="width:34%"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span>Standard (127 rooms)</span><span style="font-weight:600">₹24.6L · 29%</span></div>
+              <div class="bar-wrap" style="height:8px"><div class="bar-fill" style="width:29%;background:#93c5fd"></div></div>
+            </div>
+          </div>
+          <hr class="divider">
+          <div class="card-title" style="margin-bottom:10px">Monthly occupancy (Jan–Jun 2026)</div>
+          <div style="display:flex;align-items:flex-end;gap:8px;height:70px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="background:var(--primary);border-radius:3px 3px 0 0;width:100%;height:36px"></div><div style="font-size:10px;color:var(--dim)">Jan<br>72%</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="background:var(--primary);border-radius:3px 3px 0 0;width:100%;height:37px"></div><div style="font-size:10px;color:var(--dim)">Feb<br>75%</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="background:var(--primary);border-radius:3px 3px 0 0;width:100%;height:40px"></div><div style="font-size:10px;color:var(--dim)">Mar<br>80%</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="background:var(--primary);border-radius:3px 3px 0 0;width:100%;height:41px"></div><div style="font-size:10px;color:var(--dim)">Apr<br>83%</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="background:var(--primary);border-radius:3px 3px 0 0;width:100%;height:43px"></div><div style="font-size:10px;color:var(--dim)">May<br>86%</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="background:var(--navy);border-radius:3px 3px 0 0;width:100%;height:45px"></div><div style="font-size:10px;color:var(--dim);font-weight:600">Jun<br>89%</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Department performance</div></div>
+          <table>
+            <thead><tr><th>Department</th><th>Score</th><th>Reviews</th><th>Trend</th></tr></thead>
+            <tbody>
+              <tr><td>Front Desk</td><td><span class="badge badge-green">4.8/5</span></td><td>214</td><td style="color:var(--success);font-size:11px;font-weight:600">↑ +0.2</td></tr>
+              <tr><td>Housekeeping</td><td><span class="badge badge-green">4.6/5</span></td><td>198</td><td style="color:var(--success);font-size:11px;font-weight:600">↑ +0.1</td></tr>
+              <tr><td>Restaurant</td><td><span class="badge badge-amber">4.1/5</span></td><td>176</td><td style="color:var(--warning);font-size:11px;font-weight:600">→ 0.0</td></tr>
+              <tr><td>Concierge</td><td><span class="badge badge-green">4.7/5</span></td><td>142</td><td style="color:var(--success);font-size:11px;font-weight:600">↑ +0.3</td></tr>
+              <tr><td>Maintenance</td><td><span class="badge badge-red">3.8/5</span></td><td>89</td><td style="color:var(--danger);font-size:11px;font-weight:600">↓ -0.2</td></tr>
+              <tr><td>Spa & Wellness</td><td><span class="badge badge-green">4.9/5</span></td><td>67</td><td style="color:var(--success);font-size:11px;font-weight:600">↑ +0.4</td></tr>
+            </tbody>
+          </table>
+          <hr class="divider">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:11px;color:var(--muted);font-weight:500;margin-bottom:4px">Overall guest satisfaction</div>
+              <div style="font-size:28px;font-weight:700;color:var(--text)">4.5 <span style="font-size:14px;font-weight:400;color:var(--dim)">/ 5.0</span></div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Based on 886 reviews</div>
+              <span class="badge badge-green">Excellent</span>
+            </div>
+          </div>
+          <div class="bar-wrap" style="margin-top:8px;height:6px"><div class="bar-fill bar-green" style="width:90%"></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Executive summary — June 2026</div><div class="card-subtitle">Auto-generated from hotelops_db</div></div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
+          <div class="stat-box"><div class="stat-box-num">₹84.2L</div><div class="stat-box-label">Total revenue</div></div>
+          <div class="stat-box"><div class="stat-box-num">1,284</div><div class="stat-box-label">Total bookings</div></div>
+          <div class="stat-box"><div class="stat-box-num">4,102</div><div class="stat-box-label">Nights sold</div></div>
+          <div class="stat-box"><div class="stat-box-num">4.5★</div><div class="stat-box-label">Guest rating</div></div>
+          <div class="stat-box"><div class="stat-box-num">89%</div><div class="stat-box-label">Occupancy rate</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- PAGE: AWS STATUS -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="page" id="page-aws">
+      <div class="metrics">
+        <div class="metric-card"><div class="metric-label">System uptime</div><div class="metric-value">99.9%</div><div class="metric-sub metric-up">30-day average</div></div>
+        <div class="metric-card"><div class="metric-label">CPU utilization</div><div class="metric-value">23%</div><div class="metric-sub">t3.micro · Normal range</div></div>
+        <div class="metric-card"><div class="metric-label">Memory used</div><div class="metric-value">412 MB</div><div class="metric-sub">of 1 GB · 40%</div></div>
+        <div class="metric-card"><div class="metric-label">Monthly AWS cost</div><div class="metric-value">$0.00</div><div class="metric-sub metric-up">Free Tier active</div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Services status</div><span class="badge badge-green">All operational</span></div>
+          <div class="service-row"><div><div class="service-name"><i class="ti ti-server" style="font-size:13px;margin-right:5px"></i>EC2 Instance</div><div class="service-detail">HotelOps-WebServer · t3.micro · Ubuntu 26.04</div></div><span class="badge badge-green">● Running</span></div>
+          <div class="service-row"><div><div class="service-name"><i class="ti ti-world" style="font-size:13px;margin-right:5px"></i>Nginx Web Server</div><div class="service-detail">Port 80/443 · HotelOps homepage live</div></div><span class="badge badge-green">● Active</span></div>
+          <div class="service-row"><div><div class="service-name"><i class="ti ti-database" style="font-size:13px;margin-right:5px"></i>MySQL Database</div><div class="service-detail">hotelops_db · 3 tables · hotelops_user</div></div><span class="badge badge-green">● Running</span></div>
+          <div class="service-row"><div><div class="service-name"><i class="ti ti-brand-docker" style="font-size:13px;margin-right:5px"></i>Docker Container</div><div class="service-detail">hotelops-container · Nginx · Port 8080</div></div><span class="badge badge-green">● Running</span></div>
+          <div class="service-row"><div><div class="service-name"><i class="ti ti-activity" style="font-size:13px;margin-right:5px"></i>CloudWatch</div><div class="service-detail">HotelOps-Dashboard · CPU alarm at 80%</div></div><span class="badge badge-green">● Monitoring</span></div>
+          <div class="service-row"><div><div class="service-name"><i class="ti ti-shield-check" style="font-size:13px;margin-right:5px"></i>IAM & Security</div><div class="service-detail">3 users · 2 groups · HotelOps-Web-SG</div></div><span class="badge badge-green">● Configured</span></div>
+          <div class="service-row"><div><div class="service-name"><i class="ti ti-clock" style="font-size:13px;margin-right:5px"></i>Cron Automation</div><div class="service-detail">Health: hourly · Backup: midnight daily</div></div><span class="badge badge-green">● Scheduled</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Infrastructure details</div></div>
+          <div class="infra-row"><span class="infra-key">Instance ID</span><span class="infra-val">i-02725eee03f1c0b35</span></div>
+          <div class="infra-row"><span class="infra-key">Public IP</span><span class="infra-val">32.236.113.239</span></div>
+          <div class="infra-row"><span class="infra-key">Private IP</span><span class="infra-val">10.0.1.23</span></div>
+          <div class="infra-row"><span class="infra-key">VPC</span><span class="infra-val">HotelOps-VPC (10.0.0.0/16)</span></div>
+          <div class="infra-row"><span class="infra-key">Public Subnet</span><span class="infra-val">10.0.1.0/24</span></div>
+          <div class="infra-row"><span class="infra-key">Private Subnet</span><span class="infra-val">10.0.2.0/24</span></div>
+          <div class="infra-row"><span class="infra-key">Region</span><span class="infra-val">ap-southeast-2 (Sydney)</span></div>
+          <div class="infra-row"><span class="infra-key">AMI</span><span class="infra-val">Ubuntu 26.04 LTS</span></div>
+          <div class="infra-row"><span class="infra-key">Instance type</span><span class="infra-val">t3.micro (2 vCPU, 1 GB RAM)</span></div>
+          <div class="infra-row"><span class="infra-key">Storage</span><span class="infra-val">8 GB gp3 EBS</span></div>
+          <div class="infra-row"><span class="infra-key">Security group</span><span class="infra-val">HotelOps-Web-SG</span></div>
+          <div class="infra-row"><span class="infra-key">Key pair</span><span class="infra-val">HotelOps-Key (RSA)</span></div>
+          <div class="infra-row"><span class="infra-key">Monthly cost</span><span class="infra-val" style="color:var(--success);font-weight:600">USD 0.00 (Free Tier)</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Resource utilization</div></div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span>CPU utilization</span><span style="font-weight:600;color:var(--success)">23%</span></div>
+            <div class="bar-wrap" style="height:7px"><div class="bar-fill bar-green" style="width:23%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span>Memory used (412 MB / 1024 MB)</span><span style="font-weight:600;color:var(--success)">40%</span></div>
+            <div class="bar-wrap" style="height:7px"><div class="bar-fill bar-green" style="width:40%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span>Disk used (3.2 GB / 8 GB)</span><span style="font-weight:600;color:var(--success)">40%</span></div>
+            <div class="bar-wrap" style="height:7px"><div class="bar-fill bar-green" style="width:40%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span>Network out (0.4 GB / 15 GB free tier)</span><span style="font-weight:600;color:var(--success)">2.7%</span></div>
+            <div class="bar-wrap" style="height:7px"><div class="bar-fill bar-blue" style="width:2.7%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- PAGE: IAM & ACCESS -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="page" id="page-iam">
+      <div class="metrics">
+        <div class="metric-card"><div class="metric-label">IAM users</div><div class="metric-value">3</div><div class="metric-sub">Admin, Manager, Staff</div></div>
+        <div class="metric-card"><div class="metric-label">IAM groups</div><div class="metric-value">2</div><div class="metric-sub">HotelOps-Admins, HotelOps-Managers</div></div>
+        <div class="metric-card"><div class="metric-label">Custom policies</div><div class="metric-value">1</div><div class="metric-sub">HotelOps-Manager-Policy</div></div>
+        <div class="metric-card"><div class="metric-label">Linux users</div><div class="metric-value">2</div><div class="metric-sub">hotelops-manager, hotelops-staff</div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">IAM users & roles</div><span class="badge badge-green">Least privilege enforced</span></div>
+          <table>
+            <thead><tr><th>User</th><th>Group</th><th>Access level</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>hotelops-admin</strong></td>
+                <td>HotelOps-Admins</td>
+                <td><span class="badge badge-navy">Full Admin</span></td>
+                <td><span class="badge badge-green">Active</span></td>
+              </tr>
+              <tr>
+                <td><strong>hotelops-manager</strong></td>
+                <td>HotelOps-Managers</td>
+                <td><span class="badge badge-blue">Read EC2 + CW</span></td>
+                <td><span class="badge badge-green">Active</span></td>
+              </tr>
+              <tr>
+                <td><strong>hotelops-staff</strong></td>
+                <td>HotelOps-Staff</td>
+                <td><span class="badge badge-gray">CW Read Only</span></td>
+                <td><span class="badge badge-green">Active</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <hr class="divider">
+          <div class="card-title" style="margin-bottom:10px">Permission breakdown</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:8px 10px;background:#f8fafc;border-radius:6px">
+              <span style="font-weight:500">EC2 Full Access</span><span class="badge badge-green">hotelops-admin only</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:8px 10px;background:#f8fafc;border-radius:6px">
+              <span style="font-weight:500">CloudWatch Full Access</span><span class="badge badge-green">hotelops-admin only</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:8px 10px;background:#f8fafc;border-radius:6px">
+              <span style="font-weight:500">EC2 Describe (Read)</span><span class="badge badge-blue">hotelops-manager</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:8px 10px;background:#f8fafc;border-radius:6px">
+              <span style="font-weight:500">CloudWatch Read Only</span><span class="badge badge-gray">hotelops-manager + staff</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Linux user management</div></div>
+          <table>
+            <thead><tr><th>Linux user</th><th>Group</th><th>Directory</th><th>Permissions</th></tr></thead>
+            <tbody>
+              <tr><td>ubuntu</td><td>sudo</td><td>/home/ubuntu</td><td><span class="badge badge-navy">Root access</span></td></tr>
+              <tr><td>hotelops-manager</td><td>hotelops-team</td><td>/opt/hotelops</td><td><span class="badge badge-blue">rwxrwx---</span></td></tr>
+              <tr><td>hotelops-staff</td><td>hotelops-team</td><td>/opt/hotelops</td><td><span class="badge badge-gray">rwxrwx---</span></td></tr>
+            </tbody>
+          </table>
+          <hr class="divider">
+          <div class="card-title" style="margin-bottom:10px">Security group — HotelOps-Web-SG</div>
+          <table>
+            <thead><tr><th>Type</th><th>Port</th><th>Protocol</th><th>Source</th></tr></thead>
+            <tbody>
+              <tr><td>SSH</td><td>22</td><td>TCP</td><td>0.0.0.0/0</td></tr>
+              <tr><td>HTTP</td><td>80</td><td>TCP</td><td>0.0.0.0/0</td></tr>
+              <tr><td>HTTPS</td><td>443</td><td>TCP</td><td>0.0.0.0/0</td></tr>
+              <tr><td>Custom</td><td>8080</td><td>TCP</td><td>0.0.0.0/0 (Docker)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+const pageTitles = {
+  dashboard: 'Dashboard',
+  bookings: 'Bookings',
+  rooms: 'Rooms',
+  guests: 'Guests',
+  reports: 'Reports & Analytics',
+  aws: 'AWS Infrastructure Status',
+  iam: 'IAM & Access Control'
+};
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('page-title').textContent = pageTitles[id] || id;
+}
+</script>
+</body>
+</html>
